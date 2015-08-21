@@ -1,13 +1,13 @@
 package in.trydevs.www.imagecompressor;
 /**
  * Created by Sundareswaran on 12-08-2015.
- *
+ * <p/>
  * I merely got the algorithm ready in a class for easy usage
  * The algorithm got ..
  * Thanks to the the post from Ambalika saha
  * http://voidcanvas.com/whatsapp-like-image-compression-in-android/
- *
  */
+
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -40,11 +40,11 @@ public class ImageCompressor {
 
     public ImageCompressor(Context context) {
         this.context = context;
-        height = 1280.0f;
-        width = 720.0f;
+        height = 1920.0f;
+        width = 1080.0f;
     }
 
-    public void setImageResolution(float height, float width){
+    public void setImageResolution(float height, float width) {
         this.height = height;
         this.width = width;
     }
@@ -52,7 +52,7 @@ public class ImageCompressor {
     public String compressImage(String imageUri) {
 
         long start = System.currentTimeMillis();
-        Log.d("Start time",start + "");
+        Log.d("Start time", start + "");
 
         String filePath = getRealPathFromURI(imageUri);
         Bitmap scaledBitmap = null;
@@ -68,9 +68,14 @@ public class ImageCompressor {
         int actualWidth = options.outWidth;
 
 //      max Height and width values of the compressed image is taken as 816x612
-
-        float maxHeight = height;
-        float maxWidth = width;
+        float maxHeight, maxWidth;
+        if (actualHeight < actualWidth) {
+            maxHeight = height;
+            maxWidth = width;
+        } else {
+            maxHeight = width;
+            maxWidth = height;
+        }
         float imgRatio = actualWidth / actualHeight;
         float maxRatio = maxWidth / maxHeight;
 
@@ -162,6 +167,20 @@ public class ImageCompressor {
 
 //          write the compressed bitmap at the destination specified by filename.
             scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+
+            try {
+                File file = new File(filename);
+                Log.d("file name", file.getName());
+                Log.d("file size", String.valueOf(file.length()));
+                if(file.length() < 100000){
+                    file.delete();
+                    height *= 1.5;
+                    width *= 1.5;
+                    compressImage(imageUri);
+                }
+            } catch (Exception e) {
+
+            }
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
